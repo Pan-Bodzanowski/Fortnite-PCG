@@ -71,6 +71,9 @@ def visualize_island(binary_noise, noise_terrain, sea_level):
     cbar.ax.axhline(sea_level, color='red', linewidth=2)
 
     plt.tight_layout()
+    plot_name = 'step1_island_visualization.png'
+    plt.savefig(plot_name, dpi=300, bbox_inches='tight')
+    print(f'Map saved as "{plot_name}".')
     plt.show()
 
 W = H = 1024

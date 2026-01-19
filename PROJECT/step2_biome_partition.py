@@ -2,11 +2,9 @@ import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 
-# 1. Load the heightmap data
 data = np.load('island_noise_map.npy')
 height, width = data.shape
 
-# 2. Parameters
 num_biomes = 10 
 sea_level = 0.5
 # Higher height_weight = biomes follow elevation (rings)
@@ -26,7 +24,8 @@ features = np.column_stack((
 print(f"Clustering {features.shape[0]} pixels...")
 
 kmeans = KMeans(n_clusters=num_biomes, random_state=42, n_init=10)
-sample_idx = np.random.choice(features.shape[0], 20000, replace=False)
+sample_size = min(20000, features.shape[0])
+sample_idx = np.random.choice(features.shape[0], sample_size, replace=False)
 kmeans.fit(features[sample_idx])
 land_labels = kmeans.predict(features)
 
@@ -34,7 +33,8 @@ biome_map = np.zeros_like(data, dtype=int)
 
 centers = []
 for i in range(num_biomes):
-    centers.append(np.mean(data[land_mask][land_labels == i]))
+    cluster_heights = data[land_mask][land_labels == i]
+    centers.append(np.mean(cluster_heights) if len(cluster_heights) > 0 else -1)
 
 sorted_indices = np.argsort(centers)
 rank_map = {old_label: new_rank + 1 for new_rank, old_label in enumerate(sorted_indices)}
@@ -44,9 +44,12 @@ biome_map[land_mask] = final_labels
 
 np.save('biome_map.npy', biome_map)
 
-plt.figure(figsize=(10, 8))
+# plt.figure(figsize=(10, 8))
 plt.imshow(biome_map, cmap='terrain', interpolation='nearest')
 plt.title(f'Spatially Consistent Biomes (Height Weight: {height_weight})')
 plt.colorbar(label='Biome ID (0=Water)')
 plt.axis('off')
+plot_name = 'step2_biome_plot.png'
+plt.savefig(plot_name, dpi=300, bbox_inches='tight')
+print(f'Biome map saved as "{plot_name}".')
 plt.show()
