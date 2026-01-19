@@ -7,11 +7,11 @@ data = np.load('island_noise_map.npy')
 height, width = data.shape
 
 # 2. Parameters
-num_biomes = 8 
-sea_level = 0.3
+num_biomes = 10 
+sea_level = 0.5
 # Higher height_weight = biomes follow elevation (rings)
 # Lower height_weight = biomes follow location (patches)
-height_weight = 700.0 
+height_weight = 1500.0 
 
 y_coords, x_coords = np.indices((height, width))
 
