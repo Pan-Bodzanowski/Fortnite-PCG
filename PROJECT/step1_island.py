@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from random import uniform as u
 
 def generate_perlin_noise(width, height, scale=10):
     def lerp(a, b, t):
@@ -11,7 +12,7 @@ def generate_perlin_noise(width, height, scale=10):
     def gradient(h, x, y):
         vectors = np.array([[0, 1], [0, -1], [1, 0], [-1, 0]])
         g = vectors[h % 4]
-        return g[:, :, 0] * x + g[:, :, 1] * y
+        return g[..., 0] * x + g[..., 1] * y
 
     grid_x, grid_y = np.meshgrid(np.arange(width), np.arange(height))
     grid_x = grid_x / scale
@@ -44,10 +45,21 @@ def generate_perlin_noise(width, height, scale=10):
 
     return nxy
 
+def fractal_noise(w, h, octaves=4, persistence=0.45):
+    noise = np.zeros((h, w))
+    freq, amp = 1.0, 1.0
+    for _ in range(octaves):
+        noise += amp * generate_perlin_noise(w, h, S / freq)
+        freq *= 2
+        amp *= persistence
+    return noise
 
 import matplotlib.colors as mcolors
 
-def visualize_island(binary_noise, noise_terrain, sea_level):
+def visualize_island(noise_terrain, sea_level):
+
+    binary_noise = (noise_terrain > sea_level).astype(int)
+
     fig, ax = plt.subplots(1, 2, figsize=(14, 6))
 
     im1 = ax[0].imshow(binary_noise, cmap='gray', interpolation='nearest', vmin=0, vmax=1)
@@ -71,31 +83,28 @@ def visualize_island(binary_noise, noise_terrain, sea_level):
     cbar.ax.axhline(sea_level, color='red', linewidth=2)
 
     plt.tight_layout()
-    plot_name = 'step1_island_visualization.png'
-    plt.savefig(plot_name, dpi=300, bbox_inches='tight')
-    print(f'Map saved as "{plot_name}".')
     plt.show()
 
 W = H = 1024
-S = 70
-SEA_LEVEL = 0.5
+S = 120
+SEA_LEVEL = 0.52
 
 y = np.arange(H)[:, None] 
 x = np.arange(W)[None, :] 
 
-p = 2.5
-dist = abs(x - W//2)**p + abs(y - H//2)**p
+xc = x - W//2
+yc = y - H//2
 
-mn, mx = -0.5, 7
+p = 3
+dist = abs(xc)**p + abs(yc)**p + u(0, 200) * xc * yc
+
+mn, mx = 0, 7
 gradient = dist / dist.max() * (mx - mn) + mn
 
-raw_noise = generate_perlin_noise(W, H, S)
+raw_noise = fractal_noise(W, H)
 
 noise_terrain = raw_noise - (gradient * 0.5)
-print(noise_terrain.shape)
 noise_terrain = (noise_terrain - noise_terrain.min()) / (noise_terrain.max() - noise_terrain.min()) * 0.8
 
-binary_noise = (noise_terrain > SEA_LEVEL).astype(int)
-
 np.save('island_noise_map.npy', noise_terrain)
-visualize_island(binary_noise, noise_terrain, SEA_LEVEL)
+visualize_island(noise_terrain, SEA_LEVEL)
