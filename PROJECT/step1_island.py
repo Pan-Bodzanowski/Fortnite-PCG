@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import distance_transform_edt
+import matplotlib.colors as mcolors
 
 def generate_perlin_noise(width, height, scale=10):
     def lerp(a, b, t):
@@ -54,12 +55,39 @@ def fractal_noise(w, h, S, octaves, persistence):
         amp *= persistence
     return noise
 
-import matplotlib.colors as mcolors
+def create_radial_gradient(W, H, p=3, mn=0, mx=7):
+    y = np.arange(H)[:, None] 
+    x = np.arange(W)[None, :] 
+    xc = x - W // 2
+    yc = y - H // 2
+    dist = abs(xc)**p + abs(yc)**p
+    return dist / dist.max() * (mx - mn) + mn
+
+def apply_river_canyons(noise_terrain, W, H, S_RIV=500, RIV_BOTTOM=0.5, OCT_RIV=4, PERS_RIV=0.5, W_RIV=0.02, CANYON=50):
+    river_noise = fractal_noise(W, H, S_RIV, OCT_RIV, PERS_RIV)
+    river_mask = 1 - (abs(river_noise) < W_RIV).astype(int)
+    
+    dist = distance_transform_edt(river_mask)
+    dist = np.minimum(np.array([CANYON]), dist)
+    dist /= CANYON
+
+    noise_terrain -= RIV_BOTTOM
+    noise_terrain *= dist ** 0.5
+    noise_terrain += RIV_BOTTOM
+    return noise_terrain
+
+def generate_island_terrain(W, H, S, OCT, PERS):
+    gradient_mask = create_radial_gradient(W, H)
+    raw_noise = fractal_noise(W, H, S, OCT, PERS)
+    
+    noise_terrain = raw_noise - (gradient_mask * 0.5)
+    noise_terrain = (noise_terrain - noise_terrain.min()) / (noise_terrain.max() - noise_terrain.min()) * 0.8
+    
+    noise_terrain = apply_river_canyons(noise_terrain, W, H)
+    return noise_terrain
 
 def visualize_island(noise_terrain, sea_level):
-
     binary_noise = (noise_terrain > sea_level).astype(int)
-
     fig, ax = plt.subplots(1, 2, figsize=(14, 6))
 
     im1 = ax[0].imshow(binary_noise, cmap='gray', interpolation='nearest', vmin=0, vmax=1)
@@ -83,51 +111,20 @@ def visualize_island(noise_terrain, sea_level):
     cbar.ax.axhline(sea_level, color='red', linewidth=2)
 
     plt.tight_layout()
+    plt.savefig('step1_island_noise_map.png')
     plt.show()
 
-W = H = 1024
-S = 120
-SEA_LEVEL = 0.52
-OCT = 3
-PERS = 0.45
+def main():
+    W = H = 1024
+    S = 120
+    SEA_LEVEL = 0.52
+    OCT = 3
+    PERS = 0.45
 
-y = np.arange(H)[:, None] 
-x = np.arange(W)[None, :] 
+    noise_terrain = generate_island_terrain(W, H, S, OCT, PERS)
+    
+    np.save('step1_island_noise_map.npy', noise_terrain)
+    visualize_island(noise_terrain, SEA_LEVEL)
 
-xc = x - W//2
-yc = y - H//2
-
-p = 3
-dist = abs(xc)**p + abs(yc)**p
-
-mn, mx = 0, 7
-gradient = dist / dist.max() * (mx - mn) + mn
-
-raw_noise = fractal_noise(W, H, S, OCT, PERS)
-
-noise_terrain = raw_noise - (gradient * 0.5)
-noise_terrain = (noise_terrain - noise_terrain.min()) / (noise_terrain.max() - noise_terrain.min()) * 0.8
-
-S_RIV = 500
-RIV_BOTTOM = 0.5
-OCT_RIV = 4
-PERS_RIV = 0.5
-W_RIV = 0.02
-CANYON = 50
-
-river_noise = fractal_noise(W, H, S_RIV, OCT_RIV, PERS_RIV)
-river_noise = 1 - (abs(river_noise) < W_RIV).astype(int)
-
-dist = distance_transform_edt(river_noise)
-dist = np.minimum(np.array([CANYON]), dist)
-dist /= CANYON
-
-# plt.imshow(dist, cmap='gray')
-# plt.show()
-
-noise_terrain -= RIV_BOTTOM
-noise_terrain *= dist ** 0.5
-noise_terrain += RIV_BOTTOM
-
-np.save('island_noise_map.npy', noise_terrain)
-visualize_island(noise_terrain, SEA_LEVEL)
+if __name__ == "__main__":
+    main()
