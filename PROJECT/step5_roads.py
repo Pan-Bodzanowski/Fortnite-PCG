@@ -6,11 +6,18 @@ from scipy.spatial import Delaunay
 from scipy.interpolate import splprep, splev
 import heapq
 from tqdm import tqdm
+from pathlib import Path
 
-TERRAIN_FILE = 'step4_terrain_with_cities.npy'
-CITIES_MASK_FILE = 'step4_cities_mask.npy'
-OUTPUT_ROADS_MASK = 'step5_roads_mask.npy'
-OUTPUT_IMAGE = 'step5_road_network.png'
+# folders
+DATA_DIR = Path('data')
+IMAGES_DIR = Path('images')
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+
+TERRAIN_FILE = DATA_DIR / 'step4_terrain_with_cities.npy'
+CITIES_MASK_FILE = DATA_DIR / 'step4_cities_mask.npy'
+OUTPUT_ROADS_MASK = DATA_DIR / 'step5_roads_mask.npy'
+OUTPUT_IMAGE = IMAGES_DIR / 'step5_road_network.png'
 
 SQRT_2 = 1.4142
 INF_COST = 1e12

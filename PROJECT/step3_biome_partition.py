@@ -2,6 +2,13 @@ import numpy as np
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from scipy.ndimage import binary_dilation, uniform_filter
+from pathlib import Path
+
+# output folders
+DATA_DIR = Path('data')
+IMAGES_DIR = Path('images')
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def calculate_slope(data, moisture_data, river_threshold, river_bank_size):
@@ -64,7 +71,7 @@ def generate_biome_map(data, moisture_data, num_biomes=10, sea_level=0.52,
     return biome_map
 
 
-def visualize_biomes(biome_map, save_path='step3_biome_distribution_map.png'):
+def visualize_biomes(biome_map, save_path=IMAGES_DIR / 'step3_biome_distribution_map.png'):
     plt.figure(figsize=(12, 9))
     num_biomes = int(np.max(biome_map))
     cmap = plt.get_cmap('tab20', num_biomes + 1)
@@ -84,11 +91,11 @@ def visualize_biomes(biome_map, save_path='step3_biome_distribution_map.png'):
 
 
 if __name__ == "__main__":
-    terrain_file = 'step1_island_noise_map.npy'
-    moisture_file = 'step2_moisture_map.npy'
+    terrain_file = DATA_DIR / 'step1_island_noise_map.npy'
+    moisture_file = DATA_DIR / 'step2_moisture_map.npy'
 
-    output_file = 'step3_biome_map.npy'
-    image_output_file = 'step3_biome_distribution_map.png'
+    output_file = DATA_DIR / 'step3_biome_map.npy'
+    image_output_file = IMAGES_DIR / 'step3_biome_distribution_map.png'
 
     data = np.load(terrain_file)
     moisture_data = np.load(moisture_file)

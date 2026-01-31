@@ -2,13 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from scipy.ndimage import binary_dilation, generate_binary_structure
+from pathlib import Path
 
-TERRAIN_FILE = 'step1_island_noise_map.npy'
-BIOME_FILE = 'step3_biome_map.npy'
+# folders
+DATA_DIR = Path('data')
+IMAGES_DIR = Path('images')
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
-OUTPUT_TERRAIN = 'step4_terrain_with_cities.npy'
-OUTPUT_CITIES_MASK = 'step4_cities_mask.npy'
-OUTPUT_IMAGE = 'step4_final_map_clean.png'
+TERRAIN_FILE = DATA_DIR / 'step1_island_noise_map.npy'
+BIOME_FILE = DATA_DIR / 'step3_biome_map.npy'
+
+OUTPUT_TERRAIN = DATA_DIR / 'step4_terrain_with_cities.npy'
+OUTPUT_CITIES_MASK = DATA_DIR / 'step4_cities_mask.npy'
+OUTPUT_IMAGE = IMAGES_DIR / 'step4_final_map_clean.png'
 
 SEA_LEVEL = 0.52
 NUM_CITIES = 14
@@ -124,8 +131,7 @@ def find_city_locations(terrain, biome_map, sea_level, num_cities, attempts_per_
     return cities_centers, half_size
 
 
-def apply_city_features(terrain, cities_centers, half_size, flattening_factor=0.8):
-    modified_terrain = terrain.copy()
+def apply_city_features(terrain, cities_centers, half_size):
     cities_mask = np.zeros_like(terrain, dtype=int)
 
     for idx, (r, c) in enumerate(cities_centers):
@@ -133,12 +139,7 @@ def apply_city_features(terrain, cities_centers, half_size, flattening_factor=0.
 
         cities_mask[r0:r1, c0:c1] = idx + 1
 
-        patch = modified_terrain[r0:r1, c0:c1]
-        target_h = np.mean(patch)
-        modified_terrain[r0:r1, c0:c1] = (
-            patch * (1 - flattening_factor)) + (target_h * flattening_factor)
-
-    return modified_terrain, cities_mask
+    return cities_mask
 
 
 def get_boundaries(data_map):
@@ -189,16 +190,16 @@ if __name__ == "__main__":
 
     centers, h_size = find_city_locations(
         raw_terrain, biome_map, SEA_LEVEL, NUM_CITIES)
-    final_terrain, cities_mask = apply_city_features(
+    cities_mask = apply_city_features(
         raw_terrain, centers, h_size)
 
     # 3. Save & Visualize
-    np.save(OUTPUT_TERRAIN, final_terrain)
+    np.save(OUTPUT_TERRAIN, raw_terrain)
     print(f"Modified terrain saved to {OUTPUT_TERRAIN}")
 
     np.save(OUTPUT_CITIES_MASK, cities_mask)
     print(f"City IDs mask saved to {OUTPUT_CITIES_MASK}")
 
-    visualize_cities(final_terrain, biome_map, cities_mask,
+    visualize_cities(raw_terrain, biome_map, cities_mask,
                      SEA_LEVEL, save_path=OUTPUT_IMAGE)
     print(f"Map visualization saved to {OUTPUT_IMAGE}")

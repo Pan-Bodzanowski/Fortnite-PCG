@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from scipy.ndimage import gaussian_filter
 from step1_island import fractal_noise
+from pathlib import Path
+
+# output folders
+DATA_DIR = Path('data')
+IMAGES_DIR = Path('images')
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def calculate_moisture(data, sea_level, sigma_ocean=100, sigma_rivers=40, noise_strength=0.4):
@@ -36,7 +43,7 @@ def calculate_moisture(data, sea_level, sigma_ocean=100, sigma_rivers=40, noise_
     return np.clip(moisture_map, 0, 1)
 
 
-def visualize_moisture(moisture_map, terrain_data, sea_level, save_path='step2_moisture_map.png'):
+def visualize_moisture(moisture_map, terrain_data, sea_level, save_path=IMAGES_DIR / 'step2_moisture_map.png'):
     land_mask = terrain_data > sea_level
     fig, ax = plt.subplots(1, 2, figsize=(16, 7))
 
@@ -67,10 +74,10 @@ def visualize_moisture(moisture_map, terrain_data, sea_level, save_path='step2_m
 
 
 if __name__ == "__main__":
-    INPUT_FILE = 'step1_island_noise_map.npy'
+    INPUT_FILE = DATA_DIR / 'step1_island_noise_map.npy'
 
-    OUTPUT_FILE = 'step2_moisture_map.npy'
-    IMAGE_FILE = 'step2_moisture_map.png'
+    OUTPUT_FILE = DATA_DIR / 'step2_moisture_map.npy'
+    IMAGE_FILE = IMAGES_DIR / 'step2_moisture_map.png'
 
     SEA_LEVEL = 0.52
 

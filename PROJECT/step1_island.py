@@ -2,6 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import distance_transform_edt
 import matplotlib.colors as mcolors
+from pathlib import Path
+
+# output folders
+DATA_DIR = Path('data')
+IMAGES_DIR = Path('images')
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def generate_perlin_noise(width, height, scale=10):
@@ -121,7 +128,7 @@ def visualize_island(noise_terrain, sea_level):
     cbar.ax.axhline(sea_level, color='red', linewidth=2)
 
     plt.tight_layout()
-    plt.savefig('step1_island_noise_map.png')
+    plt.savefig(IMAGES_DIR / 'step1_island_noise_map.png')
     plt.show()
 
 
@@ -134,7 +141,7 @@ def main():
 
     noise_terrain = generate_island_terrain(W, H, S, OCT, PERS)
 
-    np.save('step1_island_noise_map.npy', noise_terrain)
+    np.save(DATA_DIR / 'step1_island_noise_map.npy', noise_terrain)
     visualize_island(noise_terrain, SEA_LEVEL)
 
 
