@@ -5,6 +5,7 @@ from matplotlib.colors import LightSource
 from matplotlib.patches import Patch
 from scipy.ndimage import binary_dilation
 from pathlib import Path
+from step6_decorations import build_biome_colormap
 
 DATA_DIR = Path('data')
 IMAGES_DIR = Path('images')
@@ -22,23 +23,26 @@ OUTPUT_IMAGE = IMAGES_DIR / 'step7_final_world_map.png'
 
 SEA_LEVEL = 0.52
 
+named_colors = build_biome_colormap()
+
 BIOME_COLORS = {
-    0: (0.0, 0.0, 0.5),         # Fallback
-    1: "#7C9C52",             # Grasslands
-    2: "#EEDC82",             # Desert
-    3: "#F8F8F8",             # Snow
-    4: "#F0E68C",             # Beach
-    5: "#228B22",             # Forest
-    6: "#556B2F",             # Swamp
-    7: "#708090",             # Boreal Tundra
+    0: (0.0, 0.0, 0.5, 1.0),
+    1: named_colors["Grasslands"],
+    2: named_colors["Desert"],
+    3: named_colors["Snow"],
+    4: named_colors["Beach"],
+    5: named_colors["Forest"],
+    6: named_colors["Swamp"],
+    7: named_colors["Boreal Tundra"],
 }
 
 COLOR_ROAD = "#ba9e7a"
-COLOR_BRIDGE = "#3b3c3b"
+COLOR_BRIDGE = "#2c2c2c"
 COLOR_CITY = "#202020"
 COLOR_TREE = "#003300"
-COLOR_WATER_DEEP = "#001769"
-COLOR_WATER_SHALLOW = "#0074d3"
+
+COLOR_WATER_DEEP = "#1e4d8c"
+COLOR_WATER_SHALLOW = "#4db6e3"
 
 # opacity
 CITY_ALPHA = 0.75
@@ -50,7 +54,7 @@ BRIDGE_VISUAL_THICKNESS = 4
 def create_colormap_from_dict(color_dict, max_id):
     colors_list = []
     for i in range(max_id + 1):
-        c = color_dict.get(i, "#000000")
+        c = color_dict.get(i, (0, 0, 0, 0))
         colors_list.append(c)
     return mcolors.ListedColormap(colors_list)
 
@@ -137,12 +141,12 @@ def render_map():
         "Procedural Fortnite-like Island", fontsize=20, pad=20)
 
     legend_elements = [
-        Patch(facecolor=BIOME_COLORS[1], label='Grasslands'),
-        Patch(facecolor=BIOME_COLORS[5], label='Forest'),
-        Patch(facecolor=BIOME_COLORS[2], label='Desert'),
-        Patch(facecolor=BIOME_COLORS[3], label='Snow'),
-        Patch(facecolor=BIOME_COLORS[6], label='Swamp'),
-        Patch(facecolor=BIOME_COLORS[7], label='Tundra'),
+        Patch(facecolor=named_colors['Grasslands'], label='Grasslands'),
+        Patch(facecolor=named_colors['Forest'], label='Forest'),
+        Patch(facecolor=named_colors['Desert'], label='Desert'),
+        Patch(facecolor=named_colors['Snow'], label='Snow'),
+        Patch(facecolor=named_colors['Swamp'], label='Swamp'),
+        Patch(facecolor=named_colors['Boreal Tundra'], label='Tundra'),
         Patch(facecolor=COLOR_ROAD, label='Roads'),
         Patch(facecolor=COLOR_BRIDGE, label='Bridges'),
         Patch(facecolor=COLOR_CITY, label='Cities'),

@@ -102,7 +102,8 @@ if __name__ == "__main__":
 
     biome_map = generate_biome_map(
         data,
-        moisture_data
+        moisture_data,
+        num_biomes=7
     )
 
     np.save(output_file, biome_map)

@@ -27,7 +27,7 @@ def heuristic(a, b):
     dx = abs(b[0] - a[0])
     dy = abs(b[1] - a[1])
     dist = max(dx, dy) + (SQRT_2 - 1) * min(dx, dy)
-    return dist * 1.05
+    return dist
 
 
 def generate_cost_map(terrain, sea_level, cost_flat, cost_water, slope_weight, slope_power):
@@ -149,11 +149,11 @@ def get_city_centers(cities_mask):
 def build_network(terrain, cities_mask, sea_level,
                   road_thickness=5,
                   cost_flat=1.0,
-                  cost_water=25.0,
+                  cost_water=1000.0,
                   slope_weight=800.0,
                   slope_power=3,
                   max_slope_diff=0.12,
-                  cost_existing_road=0.33):
+                  cost_existing_road=0.75):
     H, W = terrain.shape
 
     print("Generating static cost map...")

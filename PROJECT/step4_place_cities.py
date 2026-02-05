@@ -18,7 +18,7 @@ OUTPUT_CITIES_MASK = DATA_DIR / 'step4_cities_mask.npy'
 OUTPUT_IMAGE = IMAGES_DIR / 'step4_final_map_clean.png'
 
 SEA_LEVEL = 0.52
-NUM_CITIES = 14
+NUM_CITIES = 12
 CITY_SIZE_RATIO = 25
 
 
