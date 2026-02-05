@@ -16,6 +16,10 @@ This system serves as a solid base designed to be easily converted into 3D in th
 
 Procedural Content Generation (PCG) enables the automatic creation of large game environments, reducing manual design effort while increasing replayability. In Battle Royale games, terrain layout strongly influences gameplay balance and player strategy, making natural-looking landscapes especially important. This project applies PCG techniques to generate Fortnite-inspired island maps that imitate real-world terrain features such as varied elevation and coastlines.
 
+## Problem justification
+
+It is worth keeping in mind that all the actual Fortnite maps have been made by hand, and so the subject of generating then by hand is our nuance. One could imagine that someone might want to make a custom map and find starting from scratch difficult. And so, this tool is purposed to facilitate that process, with a possibility to adjust all of the island generator's parameters to the user's will. The values we used for this project were adjusted to enhance the island's more interesting features and make it as similar to the existing maps as possible.
+
 ## Running the code
 
 To run the code following dependencies needs to be installed:
